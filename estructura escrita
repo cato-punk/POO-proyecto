@@ -1,0 +1,40 @@
+Proyecto RAA (Red de Ayuda Animal)
+   │
+   └── src/  (Código fuente principal)
+       │
+       └── main/ (Código principal de la aplicación)
+           │
+           └── java/ (Código fuente Java)
+               │
+               └── RAA
+                   │
+                   ├── entidades/  (Clases que representan los datos)
+                   │   │
+                   │   ├── Animal.java
+                   │   ├── Persona.java
+                   │   ├──Veterinario.java
+                   │   └── ... (Otras clases de datos)
+                   │
+                   ├── modulos/  (Clases con la lógica de la aplicación)
+                   │   │
+                   │   ├── ModuloRescate.java
+                   │   ├── ModuloGestionAnimal.java
+                   │   ├── ModuloGestionVeterinario.java
+                   │   ├── ModuloVisualizacion.java
+                   │   └── ... (Otros módulos, en caso de cambio)
+                   │
+                   ├── Metodos/ (Clases con métodos de utilidad)
+                   │   │
+                   │   └── MetodosUno.java
+                   │
+                   ├── Menu.java  (Clase para la interfaz de menú)
+                   │
+                   └── Main.java  (Clase que inicia la aplicación - `main` method)
+       │
+       └── resources/ (Archivos no-código: datos, configuración)
+           │
+           └── ... (Archivos JSON, etc.)
+       │
+       └── test/     (Código para pruebas automatizadas)
+           │
+           └── ... (Clases de prueba JUnit)
