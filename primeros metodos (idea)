@@ -1,0 +1,405 @@
+package org.example;  (primer esquema )
+import org.json.JSONArray;
+import org.json.JSONObject;  // para trabajar con objetos JSON clave-valor
+import java.io.FileWriter;  // escribir datos en archivos de texto (para mas adelante)
+import java.io.IOException;  // excepción que puede ocurrir durante las operaciones de entrada/salida mas adelante
+import java.nio.file.Paths; // crear objetos Path a partir de cadenas de texto que representan rutas de archivos o directorios (nos falta dominio)
+import java.time.LocalDateTime; //
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Scanner;
+import java.time.LocalDate; // Importar LocalDate
+
+public class MetodosUno {
+
+    private static Scanner scanner = new Scanner(System.in);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    // ==================== Métodos de Utilidad General ====================
+
+    public static void mostrarMenu(List<String> opciones) {
+        System.out.println("--- Menú ---");
+        for (int i = 0; i < opciones.size(); i++) {
+            System.out.println((i + 1) + ". " + opciones.get(i));
+        }
+        System.out.println("-------------");
+    }
+
+    public static int capturarEntero(String mensaje) {
+        while (true) {
+            try {
+                System.out.print(mensaje);
+                return scanner.nextInt();
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Error: Por favor, ingresa un número entero válido.");
+                scanner.next(); // Limpiar el buffer del scanner
+            }
+        }
+    }
+
+    public static String capturarTexto(String mensaje) {
+        System.out.print(mensaje);
+        scanner.nextLine(); // Consumir la nueva línea pendiente
+        return scanner.nextLine();
+    }
+
+    public static LocalDateTime capturarFechaHora(String mensaje) {
+        while (true) {
+            try {
+                System.out.print(mensaje);
+                String entrada = scanner.nextLine();
+                return LocalDateTime.parse(entrada, DATE_TIME_FORMATTER);
+            } catch (java.time.format.DateTimeParseException e) {
+                System.out.println("Error: Formato de fecha y hora inválido. Use AAAA-MM-DD HH:MM:SS");
+            }
+        }
+    }
+
+    public static void guardarDatosJson(String nombreArchivo, JSONArray datos) {
+        try (java.io.FileWriter file = new java.io.FileWriter(nombreArchivo)) {
+            file.write(datos.toString(4)); // Indentación para legibilidad
+            System.out.println("Datos guardados en " + nombreArchivo + " correctamente.");
+        } catch (java.io.IOException e) {
+            System.out.println("Error al guardar datos en " + nombreArchivo + ": " + e.getMessage());
+        }
+    }
+
+    public static JSONArray cargarDatosJson(String nombreArchivo) {
+        try {
+            String contenido = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(nombreArchivo)));
+            return new JSONArray(contenido);
+        } catch (java.io.IOException e) {
+            System.out.println("Archivo " + nombreArchivo + " no encontrado. Se retornará un JSONArray vacío.");
+            return new JSONArray();
+        } catch (org.json.JSONException e) {
+            System.out.println("Error al decodificar JSON desde " + nombreArchivo + ". Se retornará un JSONArray vacío.");
+            return new JSONArray();
+        }
+    }
+
+    // ==================== Clases de Entidades ====================
+
+    public static class Animal {
+        private String especie;
+        private String raza;
+        private String sexo;
+        private String estado;
+        private String lugarEncontrado;
+        private LocalDateTime fechaHoraRescate;
+        private int edad;
+
+        public Animal(String especie, String raza, String sexo, String estado, String lugarEncontrado, LocalDateTime fechaHoraRescate, int edad) {
+            this.especie = especie;
+            this.raza = raza;
+            this.sexo = sexo;
+            this.estado = estado;
+            this.lugarEncontrado = lugarEncontrado;
+            this.fechaHoraRescate = fechaHoraRescate;
+            this.edad = edad;
+        }
+
+        public JSONObject toJson() {
+            JSONObject json = new JSONObject();
+            json.put("especie", especie);
+            json.put("raza", raza);
+            json.put("sexo", sexo);
+            json.put("estado", estado);
+            json.put("lugar_encontrado", lugarEncontrado);
+            json.put("fecha_hora_rescate", fechaHoraRescate.format(DATE_TIME_FORMATTER));
+            json.put("edad", edad);
+            return json;
+        }
+
+        public String getEspecie() { return especie; }
+        public void setEspecie(String especie) { this.especie = especie; }
+        public String getRaza() { return raza; }
+        public void setRaza(String raza) { this.raza = raza; }
+        public String getSexo() { return sexo; }
+        public void setSexo(String sexo) { this.sexo = sexo; }
+        public String getEstado() { return estado; }
+        public void setEstado(String estado) { this.estado = estado; }
+        public String getLugarEncontrado() { return lugarEncontrado; }
+        public void setLugarEncontrado(String lugarEncontrado) { this.lugarEncontrado = lugarEncontrado; }
+        public LocalDateTime getFechaHoraRescate() { return fechaHoraRescate; }
+        public void setFechaHoraRescate(LocalDateTime fechaHoraRescate) { this.fechaHoraRescate = fechaHoraRescate; }
+        public int getEdad() { return edad; }
+        public void setEdad(int edad) { this.edad = edad; }
+    }
+
+    public static class Persona {
+        private String nombre;
+        private LocalDate fechaNacimiento;
+        private String sexo;
+        private String direccion;
+        private String numeroTelefono;
+        private String correoElectronico;
+
+        public Persona(String nombre, LocalDate fechaNacimiento, String sexo, String direccion, String numeroTelefono, String correoElectronico) {
+            this.nombre = nombre;
+            this.fechaNacimiento = fechaNacimiento;
+            this.sexo = sexo;
+            this.direccion = direccion;
+            this.numeroTelefono = numeroTelefono;
+            this.correoElectronico = correoElectronico;
+        }
+
+        public JSONObject toJson() {
+            JSONObject json = new JSONObject();
+            json.put("nombre", nombre);
+            json.put("fecha_nacimiento", fechaNacimiento.toString()); // LocalDate to String
+            json.put("sexo", sexo);
+            json.put("direccion", direccion);
+            json.put("numero_telefono", numeroTelefono);
+            json.put("correo_electronico", correoElectronico);
+            return json;
+        }
+
+        public String getNombre() { return nombre; }
+        public void setNombre(String nombre) { this.nombre = nombre; }
+        public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+        public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+        public String getSexo() { return sexo; }
+        public void setSexo(String sexo) { this.sexo = sexo; }
+        public String getDireccion() { return direccion; }
+        public void setDireccion(String direccion) { this.direccion = direccion; }
+        public String getNumeroTelefono() { return numeroTelefono; }
+        public void setNumeroTelefono(String numeroTelefono) { this.numeroTelefono = numeroTelefono; }
+        public String getCorreoElectronico() { return correoElectronico; }
+        public void setCorreoElectronico(String correoElectronico) { this.correoElectronico = correoElectronico; }
+    }
+
+    // ==================== Módulos ====================
+
+    public static class ModuloRescate {
+
+        public static void registrarRescate() {
+            System.out.println("\n--- Registrar Rescate ---");
+
+            String especie = MetodosUno.capturarTexto("Especie: ");
+            String raza = MetodosUno.capturarTexto("Raza: ");
+            String sexo = MetodosUno.capturarTexto("Sexo: ");
+            String estado = MetodosUno.capturarTexto("Estado: ");
+            String lugarEncontrado = MetodosUno.capturarTexto("Lugar de Encuentro: ");
+            LocalDateTime fechaHoraRescate = MetodosUno.capturarFechaHora("Fecha y Hora (AAAA-MM-DD HH:MM:SS): ");
+            int edad = MetodosUno.capturarEntero("Edad: ");
+
+            Animal animal = new Animal(especie, raza, sexo, estado, lugarEncontrado, fechaHoraRescate, edad);
+
+            JSONArray animales = MetodosUno.cargarDatosJson("animales.json");
+            animales.put(animal.toJson()); // Usamos el método toJson()
+            MetodosUno.guardarDatosJson("animales.json", animales);
+
+            System.out.println("Rescate registrado exitosamente.");
+        }
+
+        public static void listarRescates() {
+            System.out.println("\n--- Listar Rescates ---");
+            JSONArray animales = MetodosUno.cargarDatosJson("animales.json");
+            if (animales.isEmpty()) {
+                System.out.println("No hay rescates registrados.");
+            } else {
+                for (int i = 0; i < animales.length(); i++) {
+                    JSONObject animalJson = animales.getJSONObject(i);
+                    System.out.println("Especie: " + animalJson.getString("especie") +
+                            ", Raza: " + animalJson.getString("raza") +
+                            ", Fecha Rescate: " + animalJson.getString("fecha_hora_rescate"));
+                    // ... mostrar más detalles
+                }
+            }
+        }
+
+        // Otros métodos del Módulo Rescate (si los hay)
+        // public static void otroMetodoRescate() {}
+    }
+
+    public static class ModuloGestionAnimal {
+
+        public static void actualizarAnimal() {
+            System.out.println("\n--- Actualizar Animal ---");
+
+            String idAnimal = MetodosUno.capturarTexto("Ingrese el ID del animal a actualizar: "); // [A IMPLEMENTAR: Búsqueda por ID]
+            JSONArray animales = MetodosUno.cargarDatosJson("animales.json");
+            JSONObject animalEncontrado = null;
+            int indiceAnimal = -1;
+
+            for (int i = 0; i < animales.length(); i++) {
+                JSONObject animal = animales.getJSONObject(i);
+                // [A IMPLEMENTAR: Lógica de comparación de IDs]
+                if (/* Comparar con idAnimal */ true) {
+                    animalEncontrado = animal;
+                    indiceAnimal = i;
+                    // Mostrar datos actuales y permitir la edición
+                    System.out.println("Datos actuales del animal:\n" + animalEncontrado.toString(4));
+
+                    String nuevoEstado = MetodosUno.capturarTexto("Nuevo Estado (" + animalEncontrado.getString("estado") + "): ");
+                    String nuevaRaza = MetodosUno.capturarTexto("Nueva Raza (" + animalEncontrado.getString("raza") + "): ");
+                    // ... (Capturar otros datos que se puedan actualizar)
+
+                    if (!nuevoEstado.isEmpty()) {
+                        animalEncontrado.put("estado", nuevoEstado);
+                    }
+                    if (!nuevaRaza.isEmpty()) {
+                        animalEncontrado.put("raza", nuevaRaza);
+                    }
+                    // ... (Actualizar otros datos)
+
+                    animales.put(indiceAnimal, animalEncontrado); // Reemplazar en el array
+                    MetodosUno.guardarDatosJson("animales.json", animales);
+
+                    System.out.println("Animal actualizado exitosamente.");
+                }
+
+                public static void listarAnimales() {
+                    // [Como en ModuloRescate.listarRescates(), pero quizás con más detalles]
+                    System.out.println("\n--- Listar Animales ---");
+                    JSONArray animales = MetodosUno.cargarDatosJson("animales.json");
+                    if (animales.isEmpty()) {
+                        System.out.println("No hay animales registrados.");
+                    } else {
+                        for (int i = 0; i < animales.length(); i++) {
+                            JSONObject animalJson = animales.getJSONObject(i);
+                            System.out.println("Especie: " + animalJson.getString("especie") +
+                                    ", Raza: " + animalJson.getString("raza") +
+                                    ", Estado: " + animalJson.getString("estado"));
+                            // ... mostrar más detalles
+                        }
+                    }
+                }
+
+                // Otros métodos de Gestión Animal
+                // public static void otroMetodoGestionAnimal() {}
+            }
+
+            public static class ModuloGestionVeterinario {
+
+                public static void actualizarEstadoSalud() {
+                    System.out.println("\n--- Actualizar Estado de Salud ---");
+
+                    String idAnimal = MetodosUno.capturarTexto("Ingrese el ID del animal: ");
+                    JSONArray animales = MetodosUno.cargarDatosJson("animales.json");
+                    JSONObject animalEncontrado = null;
+
+                    for (int i = 0; i < animales.length(); i++) {
+                        JSONObject animal = animales.getJSONObject(i);
+                        // [A IMPLEMENTAR: Lógica de búsqueda por ID]
+                        if (/* Comparar con idAnimal */ true) {
+                            animalEncontrado = animal;
+                            break;
+                        }
+                    }
+
+                    if (animalEncontrado == null) {
+                        System.out.println("No se encontró el animal.");
+                        return;
+                    }
+
+                    System.out.println("Estado de salud actual: " + animalEncontrado.getString("estado"));
+                    String nuevoEstadoSalud = MetodosUno.capturarTexto("Ingrese el nuevo estado de salud: ");
+                    animalEncontrado.put("estado", nuevoEstadoSalud);
+
+                    // [A IMPLEMENTAR: Capturar otra información veterinaria (diagnóstico, tratamiento, etc.)]
+                    // String diagnostico = Utilidades.capturarTexto("Diagnóstico: ");
+                    // animalEncontrado.put("diagnostico", diagnostico);
+
+                    MetodosUno.guardarDatosJson("animales.json", animales);
+                    System.out.println("Estado de salud actualizado.");
+                }
+
+                // Otros métodos para veterinarios
+                // public static void agregarTratamiento() {}
+            }
+
+            public static class ModuloVisualizacion {
+
+                public static void mostrarAnimalesDisponibles() {
+                    System.out.println("\n--- Animales Disponibles para Adopción ---");
+                    JSONArray animales = MetodosUno.cargarDatosJson("animales.json");
+
+                    if (animales.isEmpty()) {
+                        System.out.println("No hay animales disponibles para adopción en este momento.");
+                        return;
+                    }
+
+                    for (int i = 0; i < animales.length(); i++) {
+                        JSONObject animal = animales.getJSONObject(i);
+                        // [A IMPLEMENTAR: Filtrar animales por "disponibles para adopción"]
+                        if (/* animal.getString("estado").equals("Disponible para Adopción") */ true) {
+                            System.out.println("Especie: " + animal.getString("especie")); // [A IMPLEMENTAR: Si tiene nombre]
+                            System.out.println("Raza: " + animal.getString("raza"));
+                            System.out.println("Estado: " + animal.getString("estado"));
+                            System.out.println("---");
+                        }
+                    }
+                }
+
+                public static void buscarAnimalesPorCriterio() {
+                    System.out.println("\n--- Buscar Animales ---");
+                    String criterio = MetodosUno.capturarTexto("Ingrese la especie o raza a buscar: ");
+                    JSONArray animales = MetodosUno.cargarDatosJson("animales.json");
+
+                    // [A IMPLEMENTAR: Lógica de búsqueda y filtrado]
+                    // for (int i = 0; i < animales.length(); i++) {
+                    // JSONObject animal = animales.getJSONObject(i);
+                    // if (animal.getString("especie").toLowerCase().contains(criterio.toLowerCase()) ||
+                    // animal.getString("raza").toLowerCase().contains(criterio.toLowerCase())) {
+                    // System.out.println("Encontrado: " + animal.getString("especie") + " " + animal.getString("raza"));
+                    // }
+                    // }
+                }
+
+                // Otros métodos para la visualización
+                // public static void mostrarDetallesAnimal() {}
+            }
+
+            // ==================== Clase Menú ====================
+
+            public static class Menu {
+
+                public static void menu() {
+                    int opcion;
+                    do {
+                        mostrarOpciones();
+                        opcion = MetodosUno.capturarEntero("Ingrese una opción: ");
+                        ejecutarOpcion(opcion);
+                    } while (opcion != 4);
+                }
+
+                private static void mostrarOpciones() {
+                    System.out.println("----------¿Quién desea ingresar?----------");
+                    System.out.println("1.- RESCATISTA");
+                    System.out.println("2.- VETERINARIO");
+                    System.out.println("3.- ADOPTADOR");
+                    System.out.println("4.- SALIR");
+                }
+
+                private static void ejecutarOpcion(int opcion) {
+                    switch (opcion) {
+                        case 1 -> rescatista();
+                        case 2 -> veterinario();
+                        case 3 -> adoptador();
+                        case 4 -> System.out.println("Saliendo del sistema...");
+                        default -> System.out.println("Opción inválida. Intente de nuevo.");
+                    }
+                }
+
+                private static void rescatista() {
+                    System.out.println("Módulo del Rescatista aún no implementado.");
+                }
+
+                private static void veterinario() {
+                    System.out.println("Módulo del Veterinario aún no implementado.");
+                }
+
+                private static void adoptador() {
+                    System.out.println("Módulo del Adoptador aún no implementado.");
+                }
+            }
+
+            if (animalEncontrado == null) {
+                System.out.println("No se encontró el animal con el ID proporcionado.");
+                return;
+            }
+
+        }
+        }
+}
